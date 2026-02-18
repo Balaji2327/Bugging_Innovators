@@ -1,0 +1,44 @@
+[
+    {
+        "topic": "Bubble Sort",
+        "concept": "Time Complexity",
+        "misconception": "Using O(n^2) sorting for large datasets",
+        "diagnostic_question": "Your code works, but can you explain why this might fail or time out with 1 million elements?",
+        "explanation": "Bubble sort has a quadratic time complexity O(n^2). For large inputs, more efficient algorithms like Merge Sort or Quick Sort (O(n log n)) are preferred."
+    },
+    {
+        "topic": "Binary Search",
+        "concept": "Search Interval",
+        "misconception": "Infinite loop when low and high are adjacent or same",
+        "diagnostic_question": "What happens to your mid value when the search range narrows down to a single element?",
+        "explanation": "Binary search requires careful handling of the while loop condition (<= vs <) and the update of low/high pointers (mid+1, mid-1) to ensure the search space shrinks."
+    },
+    {
+        "topic": "Recursion",
+        "concept": "Base Case",
+        "misconception": "Stack Overflow / Missing Base Case",
+        "diagnostic_question": "Can you identify the condition that stops your function from calling itself indefinitely?",
+        "explanation": "Every recursive function must have a base case that returns a value without making further recursive calls."
+    },
+    {
+        "topic": "Two Pointers",
+        "concept": "Array Traversal",
+        "misconception": "Pointers skipping the target or overlapping incorrectly",
+        "diagnostic_question": "How do you ensure you don't skip potential solution pairs when moving both pointers?",
+        "explanation": "In two-pointer problems (like 2Sum sorted), moving pointers depends on the comparison of the current sum with the target."
+    },
+    {
+        "topic": "Linked List",
+        "concept": "Edge Cases",
+        "misconception": "Lost reference to head or cycle creation",
+        "diagnostic_question": "What happens to the rest of your list if you change this pointer before saving the next node?",
+        "explanation": "When manipulating linked lists, order of operations is crucial. Always save the reference to the next node before overwriting a pointer."
+    },
+    {
+        "topic": "Hash Maps",
+        "concept": "Key Collisions",
+        "misconception": "Assuming keys are always unique or ordered",
+        "diagnostic_question": "How does your logic handle the case where two different inputs produce the same hash key (though rare in high-level languages)?",
+        "explanation": "Hash maps provide O(1) average lookup, but worst-case can be O(n). Also, standard hashmaps do not preserve insertion order (unlike Python's dict since 3.7)."
+    }
+]
