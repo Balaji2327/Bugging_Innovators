@@ -19,6 +19,7 @@ collection = chroma_client.get_or_create_collection(
 def load_data(json_file_path="dsa_data.json"):
     """
     Reads the JSON file and 'upserts' (updates or inserts) data into ChromaDB.
+    Supports both misconception format and Striver problem format.
     """
     if not os.path.exists(json_file_path):
         print(f"Error: {json_file_path} not found.")
@@ -34,18 +35,41 @@ def load_data(json_file_path="dsa_data.json"):
     metadatas = []
 
     for idx, item in enumerate(data):
-        # Create a unique ID for each entry based on topic
-        # Replacing spaces with underscores for cleaner IDs
-        doc_id = f"{item['topic'].replace(' ', '_')}_{idx}"
+        # Determine format based on keys
+        if 'misconception' in item:
+            # Old format (misconceptions)
+            doc_id = f"misconception_{item['topic'].replace(' ', '_')}_{idx}"
+            text_content = f"Topic: {item['topic']}. Concept: {item['concept']}. Misconception: {item['misconception']}."
+            # Normalized metadata for RAG
+            meta = item.copy()
+            meta['type'] = 'misconception'
         
-        # The content that will be vectorized and searchable
-        # We combine topic, concept, and misconception for rich context
-        text_content = f"Topic: {item['topic']}. Concept: {item['concept']}. Misconception: {item['misconception']}."
+        elif 'title' in item:
+            # New format (Striver Sheet Problems)
+            doc_id = f"problem_{item['id']}_{item['slug']}"
+            text_content = (
+                f"Problem: {item['title']}. Topic: {item['topic']}. "
+                f"Description: {item['description']}. "
+                f"Hints: {' '.join(item['hints'])}. "
+                f"Editorial: {item['editorial']}"
+            )
+            # Normalize metadata keys so viva_logic doesn't crash on access
+            meta = {
+                'topic': item['topic'],
+                'concept': item['title'],
+                'misconception': item['description'][:200] + "...", # Fallback for display
+                'diagnostic_question': item['hints'][0] if item['hints'] else "Check edge cases.",
+                'explanation': item['editorial'],
+                'type': 'problem',
+                'full_json': json.dumps(item) # Store full data stringified if needed
+            }
         
+        else:
+            continue
+
         ids.append(doc_id)
         documents.append(text_content)
-        # Store the full structured data in metadata so we can retrieve it later
-        metadatas.append(item)
+        metadatas.append(meta)
 
     if ids:
         collection.upsert(
@@ -55,7 +79,7 @@ def load_data(json_file_path="dsa_data.json"):
         )
         print(f"Successfully upserted {len(ids)} documents into ChromaDB.")
     else:
-        print("No data found to insert.")
+        print("No valid data found to insert.")
 
 def query_knowledge(query_text, n_results=1):
     """

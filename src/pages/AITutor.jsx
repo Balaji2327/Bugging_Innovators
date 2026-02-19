@@ -1,197 +1,324 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  SparklesIcon, 
-  ChartBarIcon, 
-  ExclamationTriangleIcon, 
-  CheckBadgeIcon, 
-  ArrowPathIcon,
-  LightBulbIcon
-} from '@heroicons/react/24/outline';
+import React, { useState, useRef, useEffect } from 'react';
+import { SparklesIcon, PaperAirplaneIcon, ArrowPathIcon, CodeBracketIcon, XMarkIcon } from '@heroicons/react/24/outline';
+
+const TOPICS = [
+   'Binary Search',
+   'Recursion',
+   'Two Pointers',
+   'Linked List',
+   'Hash Maps',
+   'Bubble Sort',
+   'Dynamic Programming',
+   'Graph Traversal',
+];
+
+const SYSTEM_GREETING = (topic) =>
+   `Hello! I'm your AI DSA Tutor. Today we'll be working on **${topic}**.\n\nPlease paste your code below and I'll guide you through a Socratic viva — I'll ask questions to help you discover any issues yourself, rather than just giving you the answer. Ready? Go ahead and share your code!`;
+
+const TypingIndicator = () => (
+   <div className="flex items-end gap-2 mb-4">
+      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center flex-shrink-0">
+         <SparklesIcon className="w-4 h-4 text-white" />
+      </div>
+      <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-2xl rounded-bl-sm px-4 py-3">
+         <div className="flex gap-1 items-center h-4">
+            <span className="w-2 h-2 bg-orange-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+            <span className="w-2 h-2 bg-orange-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+            <span className="w-2 h-2 bg-orange-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+         </div>
+      </div>
+   </div>
+);
+
+const MessageBubble = ({ msg }) => {
+   const isAI = msg.role === 'ai';
+   // Render markdown-like bold (**text**) and newlines
+   const renderText = (text) => {
+      return text.split('\n').map((line, i) => {
+         const parts = line.split(/\*\*(.*?)\*\*/g);
+         return (
+            <p key={i} className={i > 0 ? 'mt-2' : ''}>
+               {parts.map((part, j) =>
+                  j % 2 === 1 ? <strong key={j} className="text-orange-400 font-semibold">{part}</strong> : part
+               )}
+            </p>
+         );
+      });
+   };
+
+   return (
+      <div className={`flex items-end gap-2 mb-4 ${isAI ? '' : 'flex-row-reverse'}`}>
+         {/* Avatar */}
+         <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold
+        ${isAI
+               ? 'bg-gradient-to-br from-orange-500 to-red-600'
+               : 'bg-gradient-to-br from-blue-500 to-purple-600'
+            }`}>
+            {isAI ? <SparklesIcon className="w-4 h-4 text-white" /> : 'You'}
+         </div>
+
+         {/* Bubble */}
+         <div className={`max-w-[75%] px-4 py-3 text-sm leading-relaxed
+        ${isAI
+               ? 'bg-[#1a1a1a] border border-[#2a2a2a] rounded-2xl rounded-bl-sm text-gray-200'
+               : 'bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl rounded-br-sm text-white'
+            }`}>
+            {msg.isCode ? (
+               <pre className="font-mono text-xs bg-black/40 rounded-lg p-3 overflow-x-auto whitespace-pre-wrap">
+                  <code>{msg.content}</code>
+               </pre>
+            ) : (
+               renderText(msg.content)
+            )}
+            <p className={`text-xs mt-2 ${isAI ? 'text-gray-600' : 'text-blue-300'}`}>
+               {msg.time}
+            </p>
+         </div>
+      </div>
+   );
+};
 
 const AITutor = () => {
-  const [loading, setLoading] = useState(false);
-  const [report, setReport] = useState(null);
+   const [selectedTopic, setSelectedTopic] = useState('Binary Search');
+   const [sessionStarted, setSessionStarted] = useState(false);
+   const [messages, setMessages] = useState([]);
+   const [input, setInput] = useState('');
+   const [isTyping, setIsTyping] = useState(false);
+   const [isCode, setIsCode] = useState(false);
+   const messagesEndRef = useRef(null);
+   const textareaRef = useRef(null);
 
-  // Mock initial report data
-  const initialReport = {
-    overallScore: 78,
-    status: 'Progressing Well',
-    summary: "You've shown strong consistency in Array and String problems. However, your performance in Dynamic Programming suggests a need for more focused practice on foundational recurrence relations.",
-    strengths: ['Array Manipulation', 'Two Pointers'],
-    weaknesses: ['Dynamic Programming (Memoization)', 'Graph Traversals'],
-    recommendations: [
-      { topic: 'Climbing Stairs (DP)', type: 'Practice' },
-      { topic: 'Graph BFS/DFS Visualization', type: 'Review' },
-      { topic: 'Mock Interview: Arrays', type: 'Assess' }
-    ]
-  };
+   const scrollToBottom = () => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+   };
 
-  useEffect(() => {
-     // Simulate loading initial data
-     setReport(initialReport);
-  }, []);
+   useEffect(() => {
+      scrollToBottom();
+   }, [messages, isTyping]);
 
-  const generateNewReport = () => {
-    setLoading(true);
-    // Simulate AI Generation delay
-    setTimeout(() => {
-      setLoading(false);
-      // Just refreshing the same data for demo, typically this would fetch new analysis
-      setReport({
-        ...initialReport,
-        overallScore: Math.floor(Math.random() * (85 - 75 + 1)) + 75, // Randomize slightly
-        status: 'Updated Analysis'
-      });
-    }, 2000);
-  };
+   const now = () =>
+      new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-  return (
-    <div className="min-h-screen bg-black text-white p-8 font-sans space-y-8 animate-fade-in">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-white tracking-tight flex items-center gap-2">
-            AI Performance Report
-            <SparklesIcon className="w-6 h-6 text-orange-500" />
-          </h1>
-          <p className="text-gray-400 mt-1">Personalized analysis of your learning journey generated by our AI.</p>
-        </div>
-        
-        <button 
-          onClick={generateNewReport}
-          disabled={loading}
-          className="flex items-center gap-2 bg-[#1a1a1a] border border-[#333] hover:border-orange-500 hover:text-orange-500 text-white px-4 py-2 rounded-lg transition-all disabled:opacity-50"
-        >
-          {loading ? (
-             <ArrowPathIcon className="w-5 h-5 animate-spin" />
-          ) : (
-             <SparklesIcon className="w-5 h-5" />
-          )}
-          <span>{loading ? 'Analyzing...' : 'Refresh Analysis'}</span>
-        </button>
+   const startSession = () => {
+      setMessages([
+         {
+            role: 'ai',
+            content: SYSTEM_GREETING(selectedTopic),
+            time: now(),
+         },
+      ]);
+      setSessionStarted(true);
+   };
+
+   const resetSession = () => {
+      setSessionStarted(false);
+      setMessages([]);
+      setInput('');
+   };
+
+   const sendMessage = async () => {
+      const trimmed = input.trim();
+      if (!trimmed || isTyping) return;
+
+      const userMsg = {
+         role: 'user',
+         content: trimmed,
+         isCode,
+         time: now(),
+      };
+
+      setMessages((prev) => [...prev, userMsg]);
+      setInput('');
+      setIsCode(false);
+      setIsTyping(true);
+
+      try {
+         // Build conversation history for context
+         const conversationHistory = messages
+            .map((m) => `${m.role === 'ai' ? 'Tutor' : 'Student'}: ${m.content}`)
+            .join('\n');
+
+         const payload = {
+            student_code: trimmed,
+            topic: selectedTopic,
+            conversation_history: conversationHistory,
+         };
+
+         const res = await fetch('/api/viva', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+         });
+
+         if (!res.ok) throw new Error(`Server error: ${res.status}`);
+
+         const data = await res.json();
+         const aiMsg = {
+            role: 'ai',
+            content: data.question || "I couldn't generate a response. Please try again.",
+            time: now(),
+         };
+         setMessages((prev) => [...prev, aiMsg]);
+      } catch (err) {
+         setMessages((prev) => [
+            ...prev,
+            {
+               role: 'ai',
+               content: `⚠️ Could not reach the backend. Make sure the FastAPI server is running on port 8000.\n\nError: ${err.message}`,
+               time: now(),
+            },
+         ]);
+      } finally {
+         setIsTyping(false);
+      }
+   };
+
+   const handleKeyDown = (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+         e.preventDefault();
+         sendMessage();
+      }
+   };
+
+   // --- Topic Selection Screen ---
+   if (!sessionStarted) {
+      return (
+         <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-8">
+            <div className="w-full max-w-lg">
+               <div className="text-center mb-10">
+                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-500 to-red-600 mb-4">
+                     <SparklesIcon className="w-8 h-8 text-white" />
+                  </div>
+                  <h1 className="text-3xl font-bold text-white">AI DSA Tutor</h1>
+                  <p className="text-gray-400 mt-2">Your personal Socratic viva coach. Choose a topic to begin.</p>
+               </div>
+
+               <div className="bg-[#111] border border-[#222] rounded-2xl p-6 space-y-5">
+                  <div>
+                     <label className="block text-sm font-medium text-gray-400 mb-3">Select Topic</label>
+                     <div className="grid grid-cols-2 gap-2">
+                        {TOPICS.map((t) => (
+                           <button
+                              key={t}
+                              onClick={() => setSelectedTopic(t)}
+                              className={`px-3 py-2.5 rounded-xl text-sm font-medium border transition-all text-left
+                      ${selectedTopic === t
+                                    ? 'bg-orange-500/20 border-orange-500 text-orange-400'
+                                    : 'bg-[#1a1a1a] border-[#2a2a2a] text-gray-300 hover:border-[#444]'
+                                 }`}
+                           >
+                              {t}
+                           </button>
+                        ))}
+                     </div>
+                  </div>
+
+                  <div className="bg-[#0d0d0d] border border-[#1f1f1f] rounded-xl p-4 text-sm text-gray-400 space-y-1">
+                     <p className="text-white font-medium text-xs uppercase tracking-wider mb-2">How it works</p>
+                     <p>📝 Paste your code or explain your approach</p>
+                     <p>🤔 The AI will ask probing questions — not give answers</p>
+                     <p>💡 Discover your own bugs through guided dialogue</p>
+                  </div>
+
+                  <button
+                     onClick={startSession}
+                     className="w-full py-3 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-400 hover:to-red-500 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2"
+                  >
+                     <SparklesIcon className="w-5 h-5" />
+                     Start Viva Session — {selectedTopic}
+                  </button>
+               </div>
+            </div>
+         </div>
+      );
+   }
+
+   // --- Chat Interface ---
+   return (
+      <div className="flex flex-col h-screen bg-black text-white">
+         {/* Header */}
+         <div className="flex items-center justify-between px-6 py-4 border-b border-[#1a1a1a] bg-[#0a0a0a]">
+            <div className="flex items-center gap-3">
+               <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center">
+                  <SparklesIcon className="w-5 h-5 text-white" />
+               </div>
+               <div>
+                  <h2 className="font-bold text-white text-sm">AI DSA Tutor</h2>
+                  <p className="text-xs text-orange-400">Topic: {selectedTopic}</p>
+               </div>
+            </div>
+            <div className="flex items-center gap-2">
+               <span className="flex items-center gap-1.5 text-xs text-green-400 bg-green-400/10 px-2.5 py-1 rounded-full">
+                  <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
+                  Live
+               </span>
+               <button
+                  onClick={resetSession}
+                  title="End session"
+                  className="p-2 rounded-lg text-gray-500 hover:text-white hover:bg-[#1a1a1a] transition-all"
+               >
+                  <XMarkIcon className="w-5 h-5" />
+               </button>
+            </div>
+         </div>
+
+         {/* Messages */}
+         <div className="flex-1 overflow-y-auto px-4 py-6 space-y-1">
+            <div className="max-w-3xl mx-auto">
+               {messages.map((msg, i) => (
+                  <MessageBubble key={i} msg={msg} />
+               ))}
+               {isTyping && <TypingIndicator />}
+               <div ref={messagesEndRef} />
+            </div>
+         </div>
+
+         {/* Input Area */}
+         <div className="border-t border-[#1a1a1a] bg-[#0a0a0a] px-4 py-4">
+            <div className="max-w-3xl mx-auto">
+               {/* Code toggle */}
+               <div className="flex items-center gap-2 mb-2">
+                  <button
+                     onClick={() => setIsCode((v) => !v)}
+                     className={`flex items-center gap-1.5 text-xs px-3 py-1 rounded-full border transition-all
+                ${isCode
+                           ? 'bg-purple-500/20 border-purple-500 text-purple-400'
+                           : 'bg-[#1a1a1a] border-[#2a2a2a] text-gray-500 hover:text-gray-300'
+                        }`}
+                  >
+                     <CodeBracketIcon className="w-3.5 h-3.5" />
+                     {isCode ? 'Code Mode ON' : 'Code Mode'}
+                  </button>
+                  <span className="text-xs text-gray-600">Press Enter to send · Shift+Enter for new line</span>
+               </div>
+
+               <div className="flex gap-3 items-end">
+                  <textarea
+                     ref={textareaRef}
+                     value={input}
+                     onChange={(e) => setInput(e.target.value)}
+                     onKeyDown={handleKeyDown}
+                     placeholder={isCode ? 'Paste your code here...' : 'Type your response or explanation...'}
+                     rows={isCode ? 5 : 2}
+                     className={`flex-1 resize-none rounded-xl border bg-[#111] text-white text-sm px-4 py-3 outline-none transition-all placeholder-gray-600
+                focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/20
+                ${isCode ? 'font-mono border-purple-500/30' : 'border-[#2a2a2a]'}`}
+                  />
+                  <button
+                     onClick={sendMessage}
+                     disabled={!input.trim() || isTyping}
+                     className="p-3 rounded-xl bg-gradient-to-br from-orange-500 to-red-600 hover:from-orange-400 hover:to-red-500 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex-shrink-0"
+                  >
+                     {isTyping
+                        ? <ArrowPathIcon className="w-5 h-5 text-white animate-spin" />
+                        : <PaperAirplaneIcon className="w-5 h-5 text-white" />
+                     }
+                  </button>
+               </div>
+            </div>
+         </div>
       </div>
-
-      {report && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Main Analysis Card */}
-          <div className="lg:col-span-2 space-y-6">
-             {/* Summary Section */}
-             <div className="bg-[#111] p-6 rounded-2xl border border-[#222]">
-                <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                   <ChartBarIcon className="w-5 h-5 text-blue-500" />
-                   Executive Summary
-                </h2>
-                <p className="text-gray-300 leading-relaxed border-l-4 border-orange-500 pl-4 py-1 italic">
-                   "{report.summary}"
-                </p>
-             </div>
-
-             {/* Strengths & Weaknesses */}
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-[#161616] p-5 rounded-xl border border-green-900/30">
-                   <h3 className="text-green-400 font-bold mb-3 flex items-center gap-2">
-                      <CheckBadgeIcon className="w-5 h-5" />
-                      Strengths
-                   </h3>
-                   <ul className="space-y-2">
-                      {report.strengths.map((item, i) => (
-                         <li key={i} className="flex items-center gap-2 text-sm text-gray-300">
-                            <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
-                            {item}
-                         </li>
-                      ))}
-                   </ul>
-                </div>
-
-                <div className="bg-[#161616] p-5 rounded-xl border border-red-900/30">
-                   <h3 className="text-red-400 font-bold mb-3 flex items-center gap-2">
-                      <ExclamationTriangleIcon className="w-5 h-5" />
-                      Areas for Improvement
-                   </h3>
-                   <ul className="space-y-2">
-                      {report.weaknesses.map((item, i) => (
-                         <li key={i} className="flex items-center gap-2 text-sm text-gray-300">
-                            <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
-                            {item}
-                         </li>
-                      ))}
-                   </ul>
-                </div>
-             </div>
-             
-             {/* AI Recommendations */}
-             <div className="bg-gradient-to-r from-[#1a1a1a] to-[#111] p-6 rounded-2xl border border-[#333]"> 
-                <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                   <LightBulbIcon className="w-5 h-5 text-yellow-500" />
-                   Recommended Next Steps
-                </h2>
-                <div className="space-y-3">
-                   {report.recommendations.map((rec, i) => (
-                      <div key={i} className="flex flex-col sm:flex-row sm:items-center justify-between bg-[#222] p-4 rounded-xl hover:bg-[#2a2a2a] transition-colors cursor-pointer group">
-                         <div>
-                            <span className="text-xs font-bold text-orange-500 bg-orange-500/10 px-2 py-0.5 rounded uppercase tracking-wide">{rec.type}</span>
-                            <h4 className="text-white font-medium mt-1 group-hover:text-orange-400 transition-colors">{rec.topic}</h4>
-                         </div>
-                         <div className="mt-3 sm:mt-0">
-                            <span className="text-gray-500 text-sm flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-                               Start 
-                               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3 h-3">
-                                 <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
-                               </svg>
-                            </span>
-                         </div>
-                      </div>
-                   ))}
-                </div>
-             </div>
-          </div>
-
-          {/* Sidebar Stats */}
-          <div className="lg:col-span-1 space-y-6">
-             <div className="bg-[#111] rounded-2xl border border-[#222] p-8 flex flex-col items-center justify-center text-center relative overflow-hidden">
-                <div className="absolute top-0 w-full h-1 bg-gradient-to-r from-orange-500 via-red-500 to-purple-500"></div>
-                <h3 className="text-gray-400 text-sm font-medium uppercase tracking-widest mb-4">Overall Readiness</h3>
-                <div className="text-6xl font-bold text-white mb-2">{report.overallScore}%</div>
-                <p className="text-orange-500 font-medium">{report.status}</p>
-             </div>
-
-             <div className="bg-[#1a1a1a] p-6 rounded-2xl border border-[#333]">
-                <h3 className="text-white font-bold mb-4">Performance Metrics</h3>
-                <div className="space-y-4">
-                   <div>
-                      <div className="flex justify-between text-xs mb-1">
-                         <span className="text-gray-400">Consistency</span>
-                         <span className="text-white">92%</span>
-                      </div>
-                      <div className="w-full bg-[#333] h-1.5 rounded-full overflow-hidden">
-                         <div className="bg-green-500 h-full w-[92%]"></div>
-                      </div>
-                   </div>
-                   <div>
-                      <div className="flex justify-between text-xs mb-1">
-                         <span className="text-gray-400">Problem Solving Speed</span>
-                         <span className="text-white">65%</span>
-                      </div>
-                      <div className="w-full bg-[#333] h-1.5 rounded-full overflow-hidden">
-                         <div className="bg-yellow-500 h-full w-[65%]"></div>
-                      </div>
-                   </div>
-                   <div>
-                      <div className="flex justify-between text-xs mb-1">
-                         <span className="text-gray-400">Code Quality</span>
-                         <span className="text-white">78%</span>
-                      </div>
-                      <div className="w-full bg-[#333] h-1.5 rounded-full overflow-hidden">
-                         <div className="bg-blue-500 h-full w-[78%]"></div>
-                      </div>
-                   </div>
-                </div>
-             </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+   );
 };
 
 export default AITutor;

@@ -7,12 +7,11 @@ import Dashboard from './pages/Dashboard';
 
 
 
-import DSAConcepts from './pages/DSAConcepts';
-
+import ProblemList from './pages/ProblemList';
+import Workspace from './pages/Workspace';
 import Interview from './pages/Interview';
-
 import AITutor from './pages/AITutor';
-
+import DSAConcepts from './pages/DSAConcepts';
 import Profile from './pages/Profile';
 
 function App() {
@@ -21,13 +20,15 @@ function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
-        
+
         {/* Protected Dashboard Routes */}
         <Route path="/dashboard" element={<DashboardLayout />}>
           <Route index element={<Dashboard />} />
-          <Route path="dsa" element={<DSAConcepts />} />
+          <Route path="problems" element={<ProblemList />} />
+          <Route path="workspace/:slug" element={<Workspace />} />
           <Route path="interview" element={<Interview />} />
           <Route path="ai-tutor" element={<AITutor />} />
+          <Route path="dsa" element={<DSAConcepts />} />
           <Route path="profile" element={<Profile />} />
         </Route>
       </Routes>

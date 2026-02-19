@@ -15,83 +15,33 @@
   --color-primary-800: #1e40af;
   --color-primary-900: #1e3a8a;
   --color-primary-950: #172554;
-
-  --color-background: hsl(var(--background));
-  --color-foreground: hsl(var(--foreground));
-
-  --color-card: hsl(var(--card));
-  --color-card-foreground: hsl(var(--card-foreground));
-
-  --color-popover: hsl(var(--popover));
-  --color-popover-foreground: hsl(var(--popover-foreground));
-
-  --color-primary: hsl(var(--primary));
-  --color-primary-foreground: hsl(var(--primary-foreground));
-
-  --color-secondary: hsl(var(--secondary));
-  --color-secondary-foreground: hsl(var(--secondary-foreground));
-
-  --color-muted: hsl(var(--muted));
-  --color-muted-foreground: hsl(var(--muted-foreground));
-
-  --color-accent: hsl(var(--accent));
-  --color-accent-foreground: hsl(var(--accent-foreground));
-
-  --color-destructive: hsl(var(--destructive));
-  --color-destructive-foreground: hsl(var(--destructive-foreground));
-
-  --color-border: hsl(var(--border));
-  --color-input: hsl(var(--input));
-  --color-ring: hsl(var(--ring));
-
-  --radius-lg: var(--radius);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-sm: calc(var(--radius) - 4px);
 }
 
-/* Base styles and variables - Light Mode Default */
-@layer base {
-  :root {
-    --background: 0 0% 0%;
-    --foreground: 0 0% 100%;
-
-    --card: 0 0% 3%;
-    --card-foreground: 0 0% 100%;
-
-    --popover: 0 0% 3%;
-    --popover-foreground: 0 0% 100%;
-
-    --primary: 24.6 95% 53.1%;
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 0 0% 13%;
-    --secondary-foreground: 0 0% 100%;
-
-    --muted: 0 0% 13%;
-    --muted-foreground: 0 0% 60%;
-
-    --accent: 0 0% 13%;
-    --accent-foreground: 0 0% 100%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
-    --ring: 24.6 95% 53.1%;
-
-    --radius: 0.5rem;
-  }
+/* Base styles */
+:root {
+  --background: 0 0% 0%;
+  --foreground: 0 0% 100%;
+  --card: 0 0% 3%;
+  --card-foreground: 0 0% 100%;
+  --primary: 24.6 95% 53.1%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 0 0% 13%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 0 0% 13%;
+  --muted-foreground: 0 0% 60%;
+  --accent: 0 0% 13%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 0 0% 20%;
+  --input: 0 0% 20%;
+  --ring: 24.6 95% 53.1%;
+  --radius: 0.5rem;
 }
 
-/* Global styles */
 body {
-  @apply bg-background text-foreground font-sans;
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: var(--font-sans, 'Montserrat', sans-serif);
   font-feature-settings: "rlig" 1, "calt" 1;
-}
-
-@layer utilities {
-  .border-border {
-    border-color: var(--color-border);
-  }
 }

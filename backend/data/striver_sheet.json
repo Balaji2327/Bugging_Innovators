@@ -1,0 +1,115 @@
+[
+    {
+        "id": 1,
+        "topic": "Arrays",
+        "slug": "two-sum",
+        "title": "Two Sum",
+        "description": "Given an array of integers `nums` and an integer `target`, return indices of the two numbers such that they add up to `target`. You may assume that each input would have exactly one solution, and you may not use the same element twice.",
+        "complexity": "O(N) Time, O(N) Space",
+        "pattern": "Hash Map",
+        "difficulty": "Easy",
+        "test_cases": [
+            {
+                "input": "nums = [2,7,11,15], target = 9",
+                "output": "[0,1]"
+            },
+            {
+                "input": "nums = [3,2,4], target = 6",
+                "output": "[1,2]"
+            }
+        ],
+        "hints": [
+            "Can we iterate through the array and check for the complement (target - current)?",
+            "Using a hash map to store previously seen numbers allows O(1) lookups."
+        ],
+        "editorial": "The naive approach checks all pairs in O(N^2). We can optimize to O(N) by iterating once and storing each number's index in a hash map. For each `num`, check if `target - num` exists in the map."
+    },
+    {
+        "id": 2,
+        "topic": "Arrays",
+        "slug": "maximum-subarray",
+        "title": "Maximum Subarray (Kadane's)",
+        "description": "Given an integer array `nums`, find the subarray with the largest sum, and return its sum.",
+        "complexity": "O(N) Time, O(1) Space",
+        "pattern": "Kadane's Algorithm",
+        "difficulty": "Medium",
+        "test_cases": [
+            {
+                "input": "nums = [-2,1,-3,4,-1,2,1,-5,4]",
+                "output": "6 (subarray [4,-1,2,1])"
+            },
+            {
+                "input": "nums = [1]",
+                "output": "1"
+            }
+        ],
+        "hints": [
+            "If the current subarray sum becomes negative, is it worth extending? No, start fresh.",
+            "Maintain a running `current_sum` and update `max_sum` whenever `current_sum` exceeds it."
+        ],
+        "editorial": "Use Kadane's Algorithm: Create `max_so_far` and `curr_max`. Iterate through the array; update `curr_max = max(num, curr_max + num)`. Update `max_so_far = max(max_so_far, curr_max)`."
+    },
+    {
+        "id": 3,
+        "topic": "Linked List",
+        "slug": "reverse-linked-list",
+        "title": "Reverse Linked List",
+        "description": "Given the `head` of a singly linked list, reverse the list, and return the reversed list.",
+        "complexity": "O(N) Time, O(1) Space",
+        "pattern": "Two Pointers (Iterative) or Recursion",
+        "difficulty": "Easy",
+        "test_cases": [
+            {
+                "input": "head = [1,2,3,4,5]",
+                "output": "[5,4,3,2,1]"
+            }
+        ],
+        "hints": [
+            "You need to change the `next` pointer of each node to point to the previous node.",
+            "Use three pointers: `prev`, `curr`, and `next_temp` to reverse links iteratively."
+        ],
+        "editorial": "Initialize `prev = null` and `curr = head`. Loop while `curr` is not null: save `curr.next`, set `curr.next = prev`, move `prev` to `curr`, and move `curr` to `next_temp`. Return `prev`."
+    },
+    {
+        "id": 4,
+        "topic": "Two Pointers",
+        "slug": "container-with-most-water",
+        "title": "Container With Most Water",
+        "description": "You are given an integer array `height` of length n. Find two lines that together with the x-axis form a container, such that the container contains the most water. Return the maximum amount of water a container can store.",
+        "complexity": "O(N) Time, O(1) Space",
+        "pattern": "Two Pointers (Greedy)",
+        "difficulty": "Medium",
+        "test_cases": [
+            {
+                "input": "height = [1,8,6,2,5,4,8,3,7]",
+                "output": "49"
+            }
+        ],
+        "hints": [
+            "Start with pointers at both ends of the array to maximize width.",
+            "Move the pointer corresponding to the shorter line inward, hoping to find a taller line to compensate for reduced width."
+        ],
+        "editorial": "Place `left` at 0 and `right` at n-1. Calculate `area = (right - left) * min(height[left], height[right])`. Update max area. Move the pointer pointing to the shorter line inward."
+    },
+    {
+        "id": 5,
+        "topic": "Binary Search",
+        "slug": "binary-search",
+        "title": "Binary Search",
+        "description": "Given an array of integers `nums` which is sorted in ascending order, and an integer `target`, write a function to search `target` in `nums`. If `target` exists, return its index. Otherwise, return -1.",
+        "complexity": "O(log N) Time, O(1) Space",
+        "pattern": "Divide and Conquer",
+        "difficulty": "Easy",
+        "test_cases": [
+            {
+                "input": "nums = [-1,0,3,5,9,12], target = 9",
+                "output": "4"
+            }
+        ],
+        "hints": [
+            "Calculate the middle index.",
+            "If target is smaller than mid, search the left half. Else search the right."
+        ],
+        "editorial": "Standard Binary Search: `low=0`, `high=n-1`. Loop while `low <= high`. If `nums[mid] == target`, success. If `nums[mid] < target`, `low = mid + 1`. Else `high = mid - 1`."
+    }
+]

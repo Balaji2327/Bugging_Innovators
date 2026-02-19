@@ -11,7 +11,7 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans">
+    <div className="min-h-screen bg-black flex flex-col justify-center py-6 sm:px-6 lg:px-8 font-sans">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <Link to="/" className="flex justify-center text-3xl font-bold bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">
           CognitiveDSA
@@ -27,8 +27,8 @@ const Login = () => {
         </p>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-[#111] py-8 px-4 shadow sm:rounded-lg sm:px-10 border border-gray-800">
+      <div className="mt-4 sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="bg-[#111] py-6 px-4 shadow sm:rounded-lg sm:px-10 border border-gray-800">
           <form className="space-y-6" onSubmit={handleLogin}>
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-300">
@@ -89,6 +89,12 @@ const Login = () => {
               >
                 Sign in
               </button>
+            </div>
+
+            <div className="text-center text-xs text-gray-500 bg-[#1a1a1a] p-3 rounded border border-dashed border-gray-700">
+              <p>Demo Credentials:</p>
+              <p className="font-mono text-orange-400 mt-1">user: demo@example.com</p>
+              <p className="font-mono text-orange-400">pass: password</p>
             </div>
           </form>
 
