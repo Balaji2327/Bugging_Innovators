@@ -10,13 +10,15 @@ import {
     VideoCameraIcon
 } from '@heroicons/react/24/outline';
 
+import API_BASE_URL from '../config';
+
 export default function ProblemList() {
     const [problems, setProblems] = useState([]);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
     useEffect(() => {
-        fetch('/api/problems')
+        fetch(`${API_BASE_URL}/problems`)
             .then(res => res.json())
             .then(data => {
                 setProblems(data);

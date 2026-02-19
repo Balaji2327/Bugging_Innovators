@@ -7,20 +7,25 @@ load_dotenv()
 
 class JudgeService:
     def __init__(self):
-        self.api_key = os.getenv("JUDGE0_API_KEY")
-        self.host = os.getenv("JUDGE0_HOST")
-        
-        # Ensure HOST does not have protocol if it's just the domain
-        if self.host and self.host.startswith("http"):
-            self.host = self.host.split("//")[-1].split("/")[0]
-
-        self.base_url = f"https://{self.host}"
+        # Using specific host and auth as requested
+        self.base_url = "https://ce.judge0.com"
+        self.auth_user = "a1133bc6-a0f6-46bf-a2d8-6157418c6fe2"
         
         self.headers = {
-            "x-rapidapi-host": self.host,
-            "x-rapidapi-key": self.api_key,
+            "X-Auth-User": self.auth_user,
             "Content-Type": "application/json"
         }
+
+    def get_languages(self):
+        """Fetch supported languages from Judge0."""
+        url = f"{self.base_url}/languages"
+        try:
+            response = requests.get(url, headers=self.headers)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            print(f"Error fetching languages: {e}")
+            return []
 
     def submit_code(self, source_code: str, language_id: int, stdin: str = ""):
         """

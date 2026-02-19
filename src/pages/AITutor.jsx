@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { SparklesIcon, PaperAirplaneIcon, ArrowPathIcon, CodeBracketIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import API_BASE_URL from '../config';
 
 const TOPICS = [
    'Binary Search',
@@ -144,7 +145,7 @@ const AITutor = () => {
             conversation_history: conversationHistory,
          };
 
-         const res = await fetch('/api/viva', {
+         const res = await fetch(`${API_BASE_URL}/viva`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),

@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { PaperAirplaneIcon, BeakerIcon, LightBulbIcon } from '@heroicons/react/24/solid';
+import API_BASE_URL from '../config';
 
 const LANGUAGES = [
     { id: 71, name: 'Python (3.8)', slug: 'python' },
@@ -22,6 +23,7 @@ const getBoilerplate = (langId, slug) => {
 
 export default function Workspace() {
     const { slug } = useParams();
+    const navigate = useNavigate();
     const [problem, setProblem] = useState(null);
     const [languageId, setLanguageId] = useState(71); // Default Python
     const [code, setCode] = useState("");
@@ -36,7 +38,7 @@ export default function Workspace() {
 
     useEffect(() => {
         // Load Problem Details
-        fetch(`/api/problems/${slug}`)
+        fetch(`${API_BASE_URL}/problems/${slug}`)
             .then(res => res.json())
             .then(data => {
                 setProblem(data);
@@ -62,7 +64,7 @@ export default function Workspace() {
     const runCode = async (mode = 'run') => {
         setLoading(true);
         try {
-            const res = await fetch('/api/submit', {
+            const res = await fetch(`${API_BASE_URL}/submit`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -87,8 +89,6 @@ export default function Workspace() {
         setLoading(false);
     };
 
-
-
     const sendChat = async () => {
         if (!chatInput.trim()) return;
         const userMsg = chatInput;
@@ -100,7 +100,7 @@ export default function Workspace() {
         const historyText = chatHistory.map(m => `${m.sender === 'ai' ? 'Tutor' : 'Student'}: ${m.text}`).join('\n');
 
         try {
-            const res = await fetch('/api/viva', {
+            const res = await fetch(`${API_BASE_URL}/viva`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

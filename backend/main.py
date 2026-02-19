@@ -172,6 +172,45 @@ async def submit_code(submission: CodeSubmission):
             "editorial_snippet": "Fix errors first to see editorial."
         }
 
+# --- New API Endpoints (Judge0 Proxy) ---
+
+class SimpleSubmission(BaseModel):
+    source_code: str
+    stdin: str = ""
+
+@app.get("/api/v1/languages")
+async def get_languages():
+    return judge.get_languages()
+
+@app.post("/api/v1/submissions/{language_id}")
+async def create_submission(language_id: int, submission: SimpleSubmission):
+    """
+    Submit code for compilation/execution.
+    Returns: Token
+    """
+    token = judge.submit_code(submission.source_code, language_id, submission.stdin)
+    if not token:
+        raise HTTPException(status_code=500, detail="Failed to submit code")
+    return {"token": token}
+
+@app.post("/api/v1/submissions/{language_id}/run")
+async def run_submission(language_id: int, submission: SimpleSubmission):
+    """
+    Run code and wait for result (synchronous execution wrapper).
+    """
+    result = judge.execute_code(submission.source_code, language_id, submission.stdin)
+    return result
+
+@app.get("/api/v1/submissions/{token}")
+async def get_submission(token: str):
+    """
+    Get submission status/result by token.
+    """
+    result = judge.get_submission_result(token)
+    if result is None:
+         raise HTTPException(status_code=404, detail="Submission not found")
+    return result
+
 @app.post("/viva")
 async def viva(request: VivaRequest):
     """RAG Loop: Retrieve -> Augment -> Generate a diagnostic question."""
